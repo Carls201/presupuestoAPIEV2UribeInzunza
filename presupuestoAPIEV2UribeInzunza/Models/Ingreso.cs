@@ -13,7 +13,7 @@ public partial class Ingreso
 
     public int Monto { get; set; }
 
-    public virtual FuenteIngreso IdFuenteNavigation { get; set; } = null!;
+    public virtual FuenteIngreso? IdFuenteNavigation { get; set; }
 
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    public virtual Usuario? IdUsuarioNavigation { get; set; }
 }

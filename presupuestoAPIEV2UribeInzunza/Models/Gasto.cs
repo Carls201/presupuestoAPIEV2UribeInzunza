@@ -13,7 +13,7 @@ public partial class Gasto
 
     public int Monto { get; set; }
 
-    public virtual CategoriaGasto IdCategoriaNavigation { get; set; } = null!;
+    public virtual CategoriaGasto? IdCategoriaNavigation { get; set; }
 
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    public virtual Usuario? IdUsuarioNavigation { get; set; }
 }

@@ -13,7 +13,7 @@ public partial class Ahorro
 
     public int Monto { get; set; }
 
-    public virtual MetaAhorro IdMetaNavigation { get; set; } = null!;
+    public virtual MetaAhorro? IdMetaNavigation { get; set; }
 
-    public virtual Usuario IdUsuarioNavigation { get; set; } = null!;
+    public virtual Usuario? IdUsuarioNavigation { get; set; }
 }
