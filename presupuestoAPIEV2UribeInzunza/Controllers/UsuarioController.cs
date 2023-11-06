@@ -124,20 +124,12 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
         }
 
         [HttpPost]
-        [Authorize]
         public async Task<IActionResult> PostUsuario(Usuario usuario)
         {
 
-            var identity = HttpContext.User.Identity as ClaimsIdentity;
-            var token = Jwt.ValidarToken(identity);
             Resp r = new();
-            if (!token.Success)
-            {
-                r.Message = token.Message;
-                r.Data = token.Data;
-                return Unauthorized(r);
-            }
 
+            
             if (usuario.Nombre == "" || usuario.Apellido == "" || usuario.Edad == 0 || usuario.Direccion == "" || usuario.IdRol == 0)
             {
                 r.Message = "Primero tiene que completar los campos vacios";
@@ -151,12 +143,25 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
+            var resUser = new
+            {
+                usuario.IdUsuario,
+                usuario.Nombre,
+                usuario.Apellido,
+                usuario.Edad,
+                usuario.Direccion,
+                usuario.Email,
+                usuario.Pass,
+                usuario.IdRol
+            };
+
+
             db.Usuarios.Add(usuario);
             await db.SaveChangesAsync();
             r.Message = "Usuario guardado";
             r.Success = true;
             r.Data = usuario.IdUsuario;
-            return CreatedAtAction("Get", r, usuario);
+            return CreatedAtAction("Get", r, resUser);
         }
 
         
