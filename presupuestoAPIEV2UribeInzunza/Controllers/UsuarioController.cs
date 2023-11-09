@@ -76,7 +76,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             return Ok(r);
         }
 
-        [HttpGet]
+                                                                                                                      [HttpGet]
         [Authorize]
         public async Task<IActionResult> Get()
         {
@@ -94,12 +94,12 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             {
                 var usuarios = await db.Usuarios.Select(x => new
                 {
-                    id = x.IdUsuario,
-                    rol = x.IdRol,
-                    nombre = x.Nombre,
-                    apellido = x.Apellido,
-                    edad = x.Edad,
-                    direccion = x.Direccion,
+                    x.IdUsuario,
+                    x.IdRol,
+                    x.Nombre,
+                    x.Apellido,
+                    x.Edad,
+                    x.Direccion,
                     x.Email,
                     x.Pass
                 }).ToListAsync();

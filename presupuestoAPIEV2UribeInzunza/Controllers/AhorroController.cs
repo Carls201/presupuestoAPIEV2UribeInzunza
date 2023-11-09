@@ -88,12 +88,20 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
+            var resAhorro = new
+            {
+                ahorro.IdAhorro,
+                ahorro.IdUsuario,
+                ahorro.IdMeta,
+                ahorro.Monto
+            };
+
             db.Ahorros.Add(ahorro);
             await db.SaveChangesAsync();
             r.Message = "Gasto guardado";
             r.Success = true;
             r.Data = ahorro.IdAhorro;
-            return CreatedAtAction("Get", r, ahorro);
+            return CreatedAtAction("Get", r, resAhorro);
         }
 
         // DELETE

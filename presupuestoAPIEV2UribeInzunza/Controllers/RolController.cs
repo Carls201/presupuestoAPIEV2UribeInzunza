@@ -33,8 +33,8 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             {
                 var rols = await db.Rols.Select(a => new
                 {
-                    id = a.IdRol,
-                    rol = a.Rol1
+                    a.IdRol,
+                    a.Rol1
                 }).ToListAsync();
 
                 if (rols.Any())
@@ -131,9 +131,9 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             var rolx = await db.Rols.Select(r => new
             {
-                id = r.IdRol,
-                rol = r.Rol1
-            }).FirstOrDefaultAsync(x => x.id == id);
+                r.IdRol,
+                r.Rol1
+            }).FirstOrDefaultAsync(x => x.IdRol == id);
 
             if (rolx == null)
             {
