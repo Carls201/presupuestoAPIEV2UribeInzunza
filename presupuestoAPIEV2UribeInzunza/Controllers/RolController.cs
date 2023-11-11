@@ -108,6 +108,15 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
+            var usuariosConRol = await db.Usuarios.AnyAsync(u => u.IdRol == id);
+            if (usuariosConRol)
+            {
+                r.Message = "Este rol está asociado a un usuario y no puede eliminarse";
+                return BadRequest(r);
+            }
+
+
+
             db.Rols.Remove(rol);
             await db.SaveChangesAsync();
             r.Success = true;

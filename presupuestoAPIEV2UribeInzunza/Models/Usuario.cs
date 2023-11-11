@@ -7,7 +7,7 @@ public partial class Usuario
 {
     public int IdUsuario { get; set; }
 
-    public int IdRol { get; set; }
+    public int? IdRol { get; set; }
 
     public string Nombre { get; set; } = null!;
 

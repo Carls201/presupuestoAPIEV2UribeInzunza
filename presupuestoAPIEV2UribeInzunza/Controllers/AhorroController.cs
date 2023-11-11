@@ -30,13 +30,26 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             }
             try
             {
-                var ahorro = await db.Ahorros.Select(x => new
-                {
-                    x.IdAhorro,
-                    x.IdUsuario,
-                    x.IdMeta,
-                    x.Monto
-                }).ToListAsync();
+                //var ahorro = await db.Ahorros.Select(x => new
+                //{
+                //    x.IdAhorro,
+                //    x.IdUsuario,
+                //    x.IdMeta,
+                //    x.Monto
+                //}).ToListAsync();
+
+                var ahorro = await db.Ahorros
+                   .Join(db.MetaAhorros,
+                         ahorro => ahorro.IdMeta,
+                         meta => meta.IdMeta,
+                         (ahorro, meta) => new
+                         {
+                             ahorro.IdAhorro,
+                             ahorro.IdUsuario,
+                             meta = meta.Nombre,
+                             ahorro.Monto
+                         })
+                   .ToListAsync();
 
                 if (ahorro.Any())
                 {

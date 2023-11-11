@@ -56,7 +56,8 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
                 new Claim("IdUsuario", user.IdUsuario.ToString()),
-                new Claim("Email", user.Email.ToString())
+                new Claim("Email", user.Email.ToString()),
+                new Claim("IdRol", user.IdRol.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Key));
@@ -76,7 +77,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             return Ok(r);
         }
 
-                                                                                                                      [HttpGet]
+        [HttpGet]
         [Authorize]
         public async Task<IActionResult> Get()
         {
@@ -92,17 +93,24 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             try
             {
-                var usuarios = await db.Usuarios.Select(x => new
-                {
-                    x.IdUsuario,
-                    x.IdRol,
-                    x.Nombre,
-                    x.Apellido,
-                    x.Edad,
-                    x.Direccion,
-                    x.Email,
-                    x.Pass
-                }).ToListAsync();
+                var usuarios = await db.Usuarios
+                    .Join(db.Rols,
+                          usuario => usuario.IdRol,
+                          rol => rol.IdRol,
+                          (usuario, rol) => new
+                          {
+                              usuario.IdUsuario,
+                              rol.Rol1,
+                              usuario.Nombre,
+                              usuario.Apellido,
+                              usuario.Edad,
+                              usuario.Direccion,
+                              usuario.Email,
+                              usuario.Pass
+                          })
+                    .ToListAsync();
+
+               
 
                 if (usuarios.Any())
                 {
@@ -130,18 +138,15 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             Resp r = new();
 
             
-            if (usuario.Nombre == "" || usuario.Apellido == "" || usuario.Edad == 0 || usuario.Direccion == "" || usuario.IdRol == 0)
+            if (usuario.Nombre == "" || usuario.Apellido == "" || usuario.Edad == 0 || usuario.Direccion == "")
             {
                 r.Message = "Primero tiene que completar los campos vacios";
                 return BadRequest(r);
             }
 
-            var existeRol = await db.Rols.FirstOrDefaultAsync(x => x.IdRol == usuario.IdRol);
-            if (existeRol == null)
-            {
-                r.Message = "El rol especificado no existe";
-                return BadRequest(r);
-            }
+            bool hasUsers = await db.Usuarios.AnyAsync();
+            if (!hasUsers) usuario.IdRol = 25;
+            else usuario.IdRol = 41;
 
             var resUser = new
             {
