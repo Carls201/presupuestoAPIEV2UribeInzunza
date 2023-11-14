@@ -30,13 +30,20 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             }
             try
             {
-                var ingreso = await db.Ingresos.Select(x => new
-                {
-                    x.IdIngreso,
-                    x.IdUsuario,
-                    x.IdFuente,
-                    x.Monto
-                }).ToListAsync();
+                
+
+                var ingreso = await db.Ingresos
+                   .Join(db.FuenteIngresos,
+                         ingreso => ingreso.IdFuente,
+                         fuente => fuente.IdFuente,
+                         (ingreso, fuente) => new
+                         {
+                             ingreso.IdIngreso,
+                             ingreso.IdUsuario,
+                             fuente = fuente.Nombre,
+                             ingreso.Monto
+                         })
+                   .ToListAsync();
 
                 if (ingreso.Any())
                 {
@@ -88,12 +95,20 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
+            var resIngreso = new
+            {
+                ingreso.IdIngreso,
+                ingreso.IdUsuario,
+                ingreso.IdFuente,
+                ingreso.Monto
+            };
+
             db.Ingresos.Add(ingreso);
             await db.SaveChangesAsync();
             r.Message = "Ingreso guardado";
             r.Success = true;
             r.Data = ingreso.IdIngreso;
-            return CreatedAtAction("Get", r, ingreso);
+            return CreatedAtAction("Get", r, resIngreso);
         }
 
         // DELETE

@@ -30,13 +30,6 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             }
             try
             {
-                //var ahorro = await db.Ahorros.Select(x => new
-                //{
-                //    x.IdAhorro,
-                //    x.IdUsuario,
-                //    x.IdMeta,
-                //    x.Monto
-                //}).ToListAsync();
 
                 var ahorro = await db.Ahorros
                    .Join(db.MetaAhorros,
@@ -101,6 +94,10 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
+
+            db.Ahorros.Add(ahorro);
+            await db.SaveChangesAsync();
+
             var resAhorro = new
             {
                 ahorro.IdAhorro,
@@ -109,8 +106,6 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 ahorro.Monto
             };
 
-            db.Ahorros.Add(ahorro);
-            await db.SaveChangesAsync();
             r.Message = "Gasto guardado";
             r.Success = true;
             r.Data = ahorro.IdAhorro;
@@ -142,6 +137,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             db.Ahorros.Remove(ahorro);
             await db.SaveChangesAsync();
             r.Success = true;
+            r.Data = ahorro.IdAhorro;
             r.Message = "Ahorro eliminado";
             return Ok(r);
         }
@@ -166,8 +162,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 x.IdUsuario,
                 x.IdMeta,
                 x.Monto
-            }).FirstOrDefaultAsync(x => x.IdAhorro == ahorro.IdAhorro
-            );
+            }).FirstOrDefaultAsync(x => x.IdAhorro == ahorro.IdAhorro);
 
             if (ahorrox == null)
             {
@@ -183,7 +178,21 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             db.Ahorros.Update(ahorro);
             await db.SaveChangesAsync();
+
+            var ahorroAux = await db.Ahorros
+                .Where(x => x.IdAhorro == id)
+                .Join(db.MetaAhorros,
+                  ahorro => ahorro.IdMeta,
+                  meta => meta.IdMeta, 
+                  (ahorro, meta) => new { 
+                      ahorro.IdAhorro,
+                      ahorro.IdUsuario,
+                      Meta = meta.Nombre, 
+                      ahorro.Monto
+                  })
+            .FirstOrDefaultAsync();
             r.Success = true;
+            r.Data = ahorroAux;
             r.Message = "El ahorro se ha modificado con exito";
             return Ok(r);
         }

@@ -146,7 +146,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             bool hasUsers = await db.Usuarios.AnyAsync();
             if (!hasUsers) usuario.IdRol = 25;
-            else usuario.IdRol = 41;
+            else usuario.IdRol = 43;
 
             var resUser = new
             {

@@ -32,13 +32,26 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             try
             {
-                var gasto = await db.Gastos.Select(x => new
-                {
-                    x.IdGasto,
-                    x.IdUsuario,
-                    x.IdCategoria,
-                    x.Monto
-                }).ToListAsync();
+                //var gasto = await db.Gastos.Select(x => new
+                //{
+                //    x.IdGasto,
+                //    x.IdUsuario,
+                //    x.IdCategoria,
+                //    x.Monto
+                //}).ToListAsync();
+
+                var gasto = await db.Gastos
+                   .Join(db.CategoriaGastos,
+                         gasto => gasto.IdCategoria,
+                         categoria => categoria.IdCategoria,
+                         (gasto, categoria) => new
+                         {
+                             gasto.IdGasto,
+                             gasto.IdUsuario,
+                             categoria = categoria.Nombre,
+                             gasto.Monto
+                         })
+                   .ToListAsync();
 
                 if (gasto.Any())
                 {
@@ -89,12 +102,20 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
+            var resGasto = new
+            {
+                gasto.IdGasto,
+                gasto.IdUsuario,
+                gasto.IdCategoria,
+                gasto.Monto
+            };
+
             db.Gastos.Add(gasto);
             await db.SaveChangesAsync();
             r.Message = "Gasto guardado";
             r.Success = true;
             r.Data = gasto.IdGasto;
-            return CreatedAtAction("Get", r, gasto);
+            return CreatedAtAction("Get", r, resGasto);
         }
 
         [HttpDelete("{id}")]
