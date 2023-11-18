@@ -95,16 +95,22 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
-            var resIngreso = new
-            {
-                ingreso.IdIngreso,
-                ingreso.IdUsuario,
-                ingreso.IdFuente,
-                ingreso.Monto
-            };
-
             db.Ingresos.Add(ingreso);
             await db.SaveChangesAsync();
+
+            var resIngreso = await db.Ingresos.Where(i => i.IdIngreso == ingreso.IdIngreso).Join(db.FuenteIngresos,
+                ingreso => ingreso.IdFuente,
+                fuente => fuente.IdFuente,
+                (ingreso, fuente) => new
+                {
+                    ingreso.IdIngreso,
+                    ingreso.IdUsuario,
+                    fuente = fuente.Nombre,
+                    ingreso.Monto
+
+                }).FirstOrDefaultAsync();
+            
+
             r.Message = "Ingreso guardado";
             r.Success = true;
             r.Data = ingreso.IdIngreso;
@@ -136,6 +142,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             db.Ingresos.Remove(ingreso);
             await db.SaveChangesAsync();
             r.Success = true;
+            r.Data = ingreso.IdIngreso;
             r.Message = "Ingreso eliminado";
             return Ok(r);
         }
@@ -177,7 +184,22 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             db.Ingresos.Update(ingreso);
             await db.SaveChangesAsync();
+
+            var ingresoAux = await db.Ingresos
+                .Where(x => x.IdIngreso == id)
+                .Join(db.FuenteIngresos,
+                  ingres => ingres.IdFuente,
+                  fuente => fuente.IdFuente,
+                  (ingres, fuente) => new {
+                      ingres.IdIngreso,
+                      ingres.IdUsuario,
+                      fuente = fuente.Nombre,
+                      ingres.Monto
+                  })
+            .FirstOrDefaultAsync();
+
             r.Success = true;
+            r.Data = ingresoAux;
             r.Message = "El ingreso se ha modificado con exito";
             return Ok(r);
         }

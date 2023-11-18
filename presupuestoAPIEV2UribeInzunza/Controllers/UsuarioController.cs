@@ -145,8 +145,8 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             }
 
             bool hasUsers = await db.Usuarios.AnyAsync();
-            if (!hasUsers) usuario.IdRol = 25;
-            else usuario.IdRol = 43;
+            if (!hasUsers) usuario.IdRol = 1;
+            else usuario.IdRol = 2;
 
             var resUser = new
             {
@@ -160,13 +160,20 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 usuario.IdRol
             };
 
+            try
+            {
+                db.Usuarios.Add(usuario);
+                await db.SaveChangesAsync();
+                r.Message = "Usuario guardado";
+                r.Success = true;
+                r.Data = usuario.IdUsuario;
+                return CreatedAtAction("Get", r, resUser);
 
-            db.Usuarios.Add(usuario);
-            await db.SaveChangesAsync();
-            r.Message = "Usuario guardado";
-            r.Success = true;
-            r.Data = usuario.IdUsuario;
-            return CreatedAtAction("Get", r, resUser);
+            }
+            catch (Exception ex) { 
+                r.Message = ex.ToString(); 
+                return BadRequest(r);
+            }
         }
 
         

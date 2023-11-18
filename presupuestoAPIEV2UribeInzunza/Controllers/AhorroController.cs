@@ -98,13 +98,19 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             db.Ahorros.Add(ahorro);
             await db.SaveChangesAsync();
 
-            var resAhorro = new
-            {
-                ahorro.IdAhorro,
-                ahorro.IdUsuario,
-                ahorro.IdMeta,
-                ahorro.Monto
-            };
+            var resAhorro = await db.Ahorros
+                    .Where(a => a.IdAhorro == ahorro.IdAhorro)
+                   .Join(db.MetaAhorros,
+                         ahorro => ahorro.IdMeta,
+                         meta => meta.IdMeta,
+                         (ahorro, meta) => new
+                         {
+                             ahorro.IdAhorro,
+                             ahorro.IdUsuario,
+                             meta = meta.Nombre,
+                             ahorro.Monto
+                         })
+                   .FirstOrDefaultAsync();
 
             r.Message = "Gasto guardado";
             r.Success = true;

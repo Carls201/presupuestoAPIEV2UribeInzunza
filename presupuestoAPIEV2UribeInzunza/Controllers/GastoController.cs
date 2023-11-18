@@ -32,13 +32,6 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             try
             {
-                //var gasto = await db.Gastos.Select(x => new
-                //{
-                //    x.IdGasto,
-                //    x.IdUsuario,
-                //    x.IdCategoria,
-                //    x.Monto
-                //}).ToListAsync();
 
                 var gasto = await db.Gastos
                    .Join(db.CategoriaGastos,
@@ -102,16 +95,24 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                 return BadRequest(r);
             }
 
-            var resGasto = new
-            {
-                gasto.IdGasto,
-                gasto.IdUsuario,
-                gasto.IdCategoria,
-                gasto.Monto
-            };
+            
 
             db.Gastos.Add(gasto);
             await db.SaveChangesAsync();
+
+            var resGasto = await db.Gastos.
+                Where(x => x.IdGasto == gasto.IdGasto).
+                Join(db.CategoriaGastos,
+                    gasto => gasto.IdCategoria,
+                    categoria => categoria.IdCategoria,
+                    (gasto, categoria) => new
+                    {
+                        gasto.IdGasto,
+                        gasto.IdUsuario,
+                        categoria = categoria.Nombre,
+                        gasto.Monto
+                    }).FirstOrDefaultAsync();
+
             r.Message = "Gasto guardado";
             r.Success = true;
             r.Data = gasto.IdGasto;
@@ -143,6 +144,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             db.Gastos.Remove(gasto);
             await db.SaveChangesAsync();
             r.Success = true;
+            r.Data = gasto.IdGasto;
             r.Message = "Gasto eliminado";
             return Ok(r);
         }
@@ -183,7 +185,22 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             db.Gastos.Update(gasto);
             await db.SaveChangesAsync();
+
+            var gastoAux = await db.Gastos.
+                Where(x => x.IdGasto == gasto.IdGasto).
+                Join(db.CategoriaGastos,
+                    gasto => gasto.IdCategoria,
+                    categoria => categoria.IdCategoria,
+                    (gasto, categoria) => new
+                    {
+                        gasto.IdGasto,
+                        gasto.IdUsuario,
+                        categoria = categoria.Nombre,
+                        gasto.Monto
+                    }).FirstOrDefaultAsync();
+
             r.Success = true;
+            r.Data = gastoAux;
             r.Message = "El gasto se ha modificado con exito";
             return Ok(r);
         }
