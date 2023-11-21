@@ -100,7 +100,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
                           (usuario, rol) => new
                           {
                               usuario.IdUsuario,
-                              rol.Rol1,
+                              rol = rol.Rol1,
                               usuario.Nombre,
                               usuario.Apellido,
                               usuario.Edad,
@@ -146,24 +146,32 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             bool hasUsers = await db.Usuarios.AnyAsync();
             if (!hasUsers) usuario.IdRol = 1;
-            else usuario.IdRol = 2;
+            else usuario.IdRol = 3;
 
-            var resUser = new
-            {
-                usuario.IdUsuario,
-                usuario.Nombre,
-                usuario.Apellido,
-                usuario.Edad,
-                usuario.Direccion,
-                usuario.Email,
-                usuario.Pass,
-                usuario.IdRol
-            };
+           
 
             try
             {
                 db.Usuarios.Add(usuario);
                 await db.SaveChangesAsync();
+
+                var resUser = await db.Usuarios
+                    .Where(a => a.IdUsuario == usuario.IdUsuario)
+                   .Join(db.Rols,
+                         usuario => usuario.IdRol,
+                         rol => rol.IdRol,
+                         (usuario, rol) => new
+                         {
+                             usuario.IdUsuario,
+                             usuario.Nombre,
+                             usuario.Apellido,
+                             usuario.Edad,
+                             usuario.Direccion,
+                             usuario.Email,
+                             usuario.Pass,
+                             rol = rol.Rol1,
+                         })
+                   .FirstOrDefaultAsync();
                 r.Message = "Usuario guardado";
                 r.Success = true;
                 r.Data = usuario.IdUsuario;
@@ -200,6 +208,7 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
             db.Usuarios.Remove(usuario);
             await db.SaveChangesAsync();
             r.Success = true;
+            r.Data = usuario.IdUsuario;
             r.Message = "Usuario eliminado";
             return Ok(r);
         }
@@ -240,7 +249,26 @@ namespace presupuestoAPIEV2UribeInzunza.Controllers
 
             db.Usuarios.Update(usuario);
             await db.SaveChangesAsync();
+
+            var usuarioAux = await db.Usuarios
+                .Where(x => x.IdUsuario == id)
+                .Join(db.Rols,
+                  usuario => usuario.IdRol,
+                  rol => rol.IdRol,
+                  (usuario, rol) => new {
+                      usuario.IdUsuario,
+                      usuario.Nombre,
+                      usuario.Apellido,
+                      usuario.Edad,
+                      usuario.Direccion,
+                      usuario.Email,
+                      usuario.Pass,
+                      rol = rol.Rol1
+                  })
+            .FirstOrDefaultAsync();
+
             r.Success = true;
+            r.Data = usuarioAux;
             r.Message = "Usuario editado";
             return Ok(r);
 
